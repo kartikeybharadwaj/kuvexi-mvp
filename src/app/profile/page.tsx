@@ -9,6 +9,8 @@ import { getZodiacSign } from "@/lib/zodiac";
 import Link from "next/link";
 import { toastSuccess } from "@/lib/toast";
 
+type ProfileDoc = { dob?: string; zodiac?: string; vibeBio?: string };
+
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [dob, setDob] = useState("");
@@ -24,7 +26,7 @@ export default function ProfilePage() {
         const ref = doc(db, "users", u.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          const data = snap.data() as { dob?: string; zodiac?: string; vibeBio?: string };
+          const data = snap.data() as ProfileDoc;
           setDob(data.dob ?? "");
           setZodiac(data.zodiac ?? "");
           setVibeBio(data.vibeBio ?? "");
@@ -78,17 +80,27 @@ export default function ProfilePage() {
   return (
     <>
       <header className="w-full flex items-center justify-between p-4 border-b bg-white sticky top-0">
-        <Link href="/" className="text-blue-600 hover:underline">← Back to Ask</Link>
+        <Link href="/" className="text-blue-600 hover:underline">
+          ← Back to Ask
+        </Link>
 
         {user ? (
           <div className="flex items-center gap-3 text-sm text-gray-700">
-            <span>Signed in as <b>{user.email}</b></span>
-            <button onClick={() => signOut(auth)} className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">
+            <span>
+              Signed in as <b>{user.email}</b>
+            </span>
+            <button
+              onClick={() => signOut(auth)}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+            >
               Logout
             </button>
           </div>
         ) : (
-          <Link href="/login" className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500">
+          <Link
+            href="/login"
+            className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500"
+          >
             Login
           </Link>
         )}
@@ -107,11 +119,18 @@ export default function ProfilePage() {
               onChange={(e) => setDob(e.target.value)}
             />
 
-            <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500">
+            <button
+              onClick={handleSave}
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500"
+            >
               Save
             </button>
 
-            {zodiac && <p>Your Zodiac Sign: <b>{zodiac}</b></p>}
+            {zodiac && (
+              <p>
+                Your Zodiac Sign: <b>{zodiac}</b>
+              </p>
+            )}
 
             <button
               onClick={handleGenerateVibe}
@@ -121,11 +140,19 @@ export default function ProfilePage() {
               {loading ? "Consulting the stars..." : "Generate Vibe Bio ✨"}
             </button>
 
-            {vibeBio && <p className="mt-4 max-w-md text-center text-lg italic">{vibeBio}</p>}
+            {vibeBio && (
+              <p className="mt-4 max-w-md text-center text-lg italic">
+                {vibeBio}
+              </p>
+            )}
           </>
         ) : (
           <p className="text-lg text-gray-600">
-            Please <Link href="/login" className="text-blue-600 underline">sign in</Link> to access your profile.
+            Please{" "}
+            <Link href="/login" className="text-blue-600 underline">
+              sign in
+            </Link>{" "}
+            to access your profile.
           </p>
         )}
 

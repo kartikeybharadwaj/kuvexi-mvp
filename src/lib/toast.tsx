@@ -15,8 +15,8 @@ export function ToastContainer() {
       setMessage(detail);
       setTimeout(() => setMessage(""), 2000);
     };
-    window.addEventListener("toast-success", handler as EventListener);
-    return () => window.removeEventListener("toast-success", handler as EventListener);
+    window.addEventListener("toast-success", handler);
+    return () => window.removeEventListener("toast-success", handler);
   }, []);
 
   if (!message) return null;

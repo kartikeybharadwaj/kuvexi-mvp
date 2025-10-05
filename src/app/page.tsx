@@ -7,7 +7,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);   // ← typed
+  const [user, setUser] = useState<User | null>(null);
   const [message, setMessage] = useState("");
   const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(false);
@@ -51,10 +51,7 @@ export default function Home() {
         {user ? (
           <>
             <span className="opacity-80 hidden sm:inline">Hi, {user.email}</span>
-            <a
-              href="/profile"
-              className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200"
-            >
+            <a href="/profile" className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200">
               Profile
             </a>
             <button
