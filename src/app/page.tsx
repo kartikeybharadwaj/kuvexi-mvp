@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
+import type { User } from "firebase/auth";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);   // ← typed
   const [message, setMessage] = useState("");
   const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message }),
       });
-      const data = await res.json();
+      const data: { reply?: string } = await res.json();
       const text = data.reply || "✨ Cosmic silence ✨";
       setReply(text);
 
@@ -47,32 +48,31 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen p-6 bg-white text-black">
       <div className="absolute top-4 right-4 flex items-center gap-2 text-sm">
-  {user ? (
-    <>
-      <span className="opacity-80 hidden sm:inline">Hi, {user.email}</span>
-      <a
-        href="/profile"
-        className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200"
-      >
-        Profile
-      </a>
-      <button
-        onClick={() => signOut(auth)}
-        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
-      >
-        Logout
-      </button>
-    </>
-  ) : (
-    <a
-      href="/login"
-      className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500"
-    >
-      Login / Sign up
-    </a>
-  )}
-</div>
-
+        {user ? (
+          <>
+            <span className="opacity-80 hidden sm:inline">Hi, {user.email}</span>
+            <a
+              href="/profile"
+              className="px-3 py-1 rounded bg-gray-100 hover:bg-gray-200"
+            >
+              Profile
+            </a>
+            <button
+              onClick={() => signOut(auth)}
+              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <a
+            href="/login"
+            className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500"
+          >
+            Login / Sign up
+          </a>
+        )}
+      </div>
 
       <h1 className="text-3xl font-bold mb-4 text-indigo-700">✨ Ask Kuvexi ✨</h1>
       <textarea

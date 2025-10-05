@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import type { User } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { getZodiacSign } from "@/lib/zodiac";
+import Link from "next/link";
 import { toastSuccess } from "@/lib/toast";
 
-
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [dob, setDob] = useState("");
   const [zodiac, setZodiac] = useState("");
   const [vibeBio, setVibeBio] = useState("");
@@ -23,10 +24,10 @@ export default function ProfilePage() {
         const ref = doc(db, "users", u.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          const data = snap.data();
-          setDob(data.dob || "");
-          setZodiac(data.zodiac || "");
-          setVibeBio(data.vibeBio || "");
+          const data = snap.data() as { dob?: string; zodiac?: string; vibeBio?: string };
+          setDob(data.dob ?? "");
+          setZodiac(data.zodiac ?? "");
+          setVibeBio(data.vibeBio ?? "");
         }
       }
     });
@@ -43,7 +44,8 @@ export default function ProfilePage() {
     const z = getZodiacSign(d.getMonth() + 1, d.getDate());
     setZodiac(z);
     await setDoc(doc(db, "users", user.uid), { dob, zodiac: z, vibeBio }, { merge: true });
-toastSuccess("Profile saved!");
+    toastSuccess("Profile saved!");
+    setMsg("✅ Profile saved");
   }
 
   async function handleGenerateVibe() {
@@ -61,12 +63,11 @@ toastSuccess("Profile saved!");
           message: `Write a short, fun one-line bio for someone whose zodiac sign is ${zodiac}.`,
         }),
       });
-      const data = await res.json();
+      const data: { reply?: string } = await res.json();
       const bio = data.reply || "✨ Radiating cosmic energy ✨";
       setVibeBio(bio);
-	toastSuccess("🌟 Vibe bio generated!");
       if (user) await setDoc(doc(db, "users", user.uid), { vibeBio: bio }, { merge: true });
-      setMsg("🌟 Vibe bio generated!");
+      toastSuccess("🌟 Vibe bio generated!");
     } catch {
       setMsg("⚠️ Couldn't reach AI service");
     } finally {
@@ -74,29 +75,22 @@ toastSuccess("Profile saved!");
     }
   }
 
-  // ✅ FIXED STRUCTURE BELOW
   return (
     <>
       <header className="w-full flex items-center justify-between p-4 border-b bg-white sticky top-0">
-        <a href="/" className="text-blue-600 hover:underline">← Back to Ask</a>
+        <Link href="/" className="text-blue-600 hover:underline">← Back to Ask</Link>
 
         {user ? (
           <div className="flex items-center gap-3 text-sm text-gray-700">
             <span>Signed in as <b>{user.email}</b></span>
-            <button
-              onClick={() => signOut(auth)}
-              className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300"
-            >
+            <button onClick={() => signOut(auth)} className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300">
               Logout
             </button>
           </div>
         ) : (
-          <a
-            href="/login"
-            className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500"
-          >
+          <Link href="/login" className="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-500">
             Login
-          </a>
+          </Link>
         )}
       </header>
 
@@ -113,10 +107,7 @@ toastSuccess("Profile saved!");
               onChange={(e) => setDob(e.target.value)}
             />
 
-            <button
-              onClick={handleSave}
-              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500"
-            >
+            <button onClick={handleSave} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-500">
               Save
             </button>
 
@@ -130,13 +121,11 @@ toastSuccess("Profile saved!");
               {loading ? "Consulting the stars..." : "Generate Vibe Bio ✨"}
             </button>
 
-            {vibeBio && (
-              <p className="mt-4 max-w-md text-center text-lg italic">{vibeBio}</p>
-            )}
+            {vibeBio && <p className="mt-4 max-w-md text-center text-lg italic">{vibeBio}</p>}
           </>
         ) : (
           <p className="text-lg text-gray-600">
-            Please <a href="/login" className="text-blue-600 underline">sign in</a> to access your profile.
+            Please <Link href="/login" className="text-blue-600 underline">sign in</Link> to access your profile.
           </p>
         )}
 
