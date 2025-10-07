@@ -34,7 +34,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-white bg-gradient-to-b from-indigo-950 to-black">
+<main className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-black bg-white">
+
       <h1 className="text-3xl font-bold">
         🔐 {mode === "signup" ? "Create account" : "Sign in"}
       </h1>
